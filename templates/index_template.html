@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GAUTAM NMAP PRO - Report</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0a0e17;
+            font-family: 'Courier New', monospace;
+            color: #00ff88;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            background: linear-gradient(145deg, #121a2a, #1a2438);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            box-shadow: 0 0 60px rgba(0, 255, 136, 0.05);
+        }
+        .header {
+            text-align: center;
+            padding-bottom: 25px;
+            border-bottom: 2px solid rgba(0, 255, 136, 0.1);
+            margin-bottom: 25px;
+        }
+        .header h1 {
+            font-size: 2.8em;
+            background: linear-gradient(135deg, #00ff88, #00ccff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header .subtitle {
+            color: #8899aa;
+            font-size: 1.1em;
+            margin-top: 5px;
+        }
+        .badge-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        .badge {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            color: #00ff88;
+        }
+        .badge .label { color: #8899aa; }
+        .badge .value { color: #ffffff; font-weight: bold; }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(0, 255, 136, 0.1);
+        }
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .info-item .label {
+            font-size: 0.75em;
+            color: #556677;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .info-item .value {
+            font-size: 1.1em;
+            color: #00ff88;
+            font-weight: bold;
+            margin-top: 3px;
+        }
+        .scan-results {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            border-radius: 12px;
+            white-space: pre-wrap;
+            font-size: 0.9em;
+            line-height: 1.7;
+            color: #ccddee;
+            overflow-x: auto;
+            max-height: 600px;
+            overflow-y: auto;
+            border: 1px solid rgba(0, 255, 136, 0.1);
+        }
+        .scan-results::-webkit-scrollbar {
+            width: 8px;
+        }
+        .scan-results::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+        .scan-results::-webkit-scrollbar-thumb {
+            background: #00ff88;
+            border-radius: 10px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(0, 255, 136, 0.1);
+            color: #556677;
+            font-size: 0.85em;
+        }
+        .footer .highlight { color: #00ff88; }
+        .status-alive { color: #00ff88; font-weight: bold; }
+        .status-dead { color: #ff4444; font-weight: bold; }
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+            .header h1 { font-size: 1.8em; }
+            .info-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 GAUTAM NMAP PRO</h1>
+            <div class="subtitle">Professional Network Security Scanner</div>
+        </div>
+        <div class="badge-container">
+            <div class="badge"><span class="label">Target:</span> <span class="value">TARGET_PLACEHOLDER</span></div>
+            <div class="badge"><span class="label">IP:</span> <span class="value">IP_PLACEHOLDER</span></div>
+            <div class="badge"><span class="label">Scan Type:</span> <span class="value">SCAN_TYPE_PLACEHOLDER</span></div>
+            <div class="badge"><span class="label">Date:</span> <span class="value">DATE_PLACEHOLDER</span></div>
+        </div>
+        <div class="info-grid">
+            <div class="info-item"><span class="label">🎯 Target</span><span class="value">TARGET_PLACEHOLDER</span></div>
+            <div class="info-item"><span class="label">🌐 IP Address</span><span class="value">IP_PLACEHOLDER</span></div>
+            <div class="info-item"><span class="label">📡 Status</span><span class="value STATUS_PLACEHOLDER">STATUS_PLACEHOLDER</span></div>
+            <div class="info-item"><span class="label">🕒 Timestamp</span><span class="value">DATE_PLACEHOLDER</span></div>
+            <div class="info-item"><span class="label">👤 Admin</span><span class="value">Gautam Kumar</span></div>
+            <div class="info-item"><span class="label">📁 Report ID</span><span class="value">REPORT_ID_PLACEHOLDER</span></div>
+        </div>
+        <div style="margin-top: 20px; margin-bottom: 15px;">
+            <span style="color: #00ff88; font-size: 1.2em; font-weight: bold;">📡 Scan Results</span>
+        </div>
+        <div class="scan-results">
+SCAN_RESULTS_PLACEHOLDER
+        </div>
+        <div class="footer">
+            🛡️ Developed by <span class="highlight">Gautam Kumar</span> | 
+            🔒 For Educational & Legal Use Only | 
+            ⚡ Version 3.0
+        </div>
+    </div>
+</body>
+</html>

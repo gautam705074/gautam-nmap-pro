@@ -276,3 +276,27 @@ Effective network security management is critical in today's digital landscape. 
 
 ### Project Files Structure:
 
+## ⚠️ DISCLAIMER
+
+This project is for **EDUCATIONAL PURPOSES ONLY**.
+
+- Do NOT use for illegal activities
+- Do NOT target anyone without permission
+- Use only on YOUR OWN devices
+- The author is NOT responsible for misuse
+
+---
+
+## 📸 Project Run Output
+
+### Terminal Output
+
+![Terminal Output](images/terminal-output.png)
+
+*Figure: GAUTAM NMAP PRO running in Kali Linux terminal*
+
+### HTML Report Output
+
+![HTML Report](images/html-report.png)
+
+*Figure: Auto-generated HTML report with Bootstrap dashboard*

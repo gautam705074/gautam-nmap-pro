@@ -19,7 +19,7 @@ BL='\033[1m'
 
 # =================== GLOBAL VARIABLES ===================
 CURRENT_TARGET=""
-SCRIPT_DIR="$(pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RESULTS_DIR="$SCRIPT_DIR/results"
 LOGS_DIR="$SCRIPT_DIR/logs"
 REPORTS_DIR="$SCRIPT_DIR/reports"
@@ -67,11 +67,220 @@ check_nmap() {
     sleep 1
 }
 
+generate_html_report() {
+    local target=$1
+    local scan_type=$2
+    local result_file=$3
+    local report_file="$REPORTS_DIR/report_${target}_${scan_type}_${TIMESTAMP}.html"
+    
+    echo -e "${Y}[*] Generating HTML report...${NC}"
+    log_message "Generating HTML report for $target - $scan_type"
+    
+    if [ -f "$result_file" ]; then
+        SCAN_RESULTS=$(cat "$result_file" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g')
+    else
+        SCAN_RESULTS="No results found"
+    fi
+    
+    IP=$(dig +short "$target" 2>/dev/null | head -1)
+    
+    cat > "$report_file" << 'EOF'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nmap Scan Report - Gautam</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0a0e17;
+            font-family: 'Courier New', monospace;
+            color: #00ff88;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            background: linear-gradient(145deg, #121a2a, #1a2438);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 0 60px rgba(0, 255, 136, 0.05);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+        }
+        .header {
+            text-align: center;
+            padding-bottom: 25px;
+            border-bottom: 2px solid rgba(0, 255, 136, 0.1);
+            margin-bottom: 25px;
+        }
+        .header h1 {
+            font-size: 2.8em;
+            background: linear-gradient(135deg, #00ff88, #00ccff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header .subtitle {
+            color: #8899aa;
+            font-size: 1.1em;
+            margin-top: 5px;
+        }
+        .badge-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        .badge {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            color: #00ff88;
+        }
+        .badge .label { color: #8899aa; }
+        .badge .value { color: #ffffff; font-weight: bold; }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(0, 255, 136, 0.1);
+        }
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .info-item .label {
+            font-size: 0.75em;
+            color: #556677;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .info-item .value {
+            font-size: 1.1em;
+            color: #00ff88;
+            font-weight: bold;
+            margin-top: 3px;
+            word-break: break-all;
+        }
+        .scan-results {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            border-radius: 12px;
+            white-space: pre-wrap;
+            font-size: 0.9em;
+            line-height: 1.7;
+            color: #ccddee;
+            overflow-x: auto;
+            max-height: 600px;
+            overflow-y: auto;
+            border: 1px solid rgba(0, 255, 136, 0.1);
+        }
+        .scan-results::-webkit-scrollbar {
+            width: 8px;
+        }
+        .scan-results::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+        .scan-results::-webkit-scrollbar-thumb {
+            background: #00ff88;
+            border-radius: 10px;
+        }
+        .scan-results::-webkit-scrollbar-thumb:hover {
+            background: #00cc77;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(0, 255, 136, 0.1);
+            color: #556677;
+            font-size: 0.85em;
+        }
+        .footer .highlight { color: #00ff88; }
+        .status-alive { color: #00ff88; font-weight: bold; }
+        .status-dead { color: #ff4444; font-weight: bold; }
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+            .header h1 { font-size: 1.8em; }
+            .info-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 GAUTAM NMAP PRO</h1>
+            <div class="subtitle">Professional Network Security Scanner</div>
+        </div>
+        <div class="badge-container">
+            <div class="badge"><span class="label">Target:</span> <span class="value">TARGET_PLACEHOLDER</span></div>
+            <div class="badge"><span class="label">IP:</span> <span class="value">IP_PLACEHOLDER</span></div>
+            <div class="badge"><span class="label">Scan Type:</span> <span class="value">SCAN_TYPE_PLACEHOLDER</span></div>
+            <div class="badge"><span class="label">Date:</span> <span class="value">DATE_PLACEHOLDER</span></div>
+        </div>
+        <div class="info-grid">
+            <div class="info-item"><span class="label">🎯 Target</span><span class="value">TARGET_PLACEHOLDER</span></div>
+            <div class="info-item"><span class="label">🌐 IP Address</span><span class="value">IP_PLACEHOLDER</span></div>
+            <div class="info-item"><span class="label">📡 Status</span><span class="value">🟢 ALIVE</span></div>
+            <div class="info-item"><span class="label">🕒 Timestamp</span><span class="value">DATE_PLACEHOLDER</span></div>
+            <div class="info-item"><span class="label">👤 Admin</span><span class="value">Gautam Kumar</span></div>
+            <div class="info-item"><span class="label">📁 Report ID</span><span class="value">REPORT_ID_PLACEHOLDER</span></div>
+        </div>
+        <div style="margin-top: 20px; margin-bottom: 15px;">
+            <span style="color: #00ff88; font-size: 1.2em; font-weight: bold;">📡 Scan Results</span>
+        </div>
+        <div class="scan-results">
+SCAN_RESULTS_PLACEHOLDER
+        </div>
+        <div class="footer">
+            🛡️ Developed by <span class="highlight">Gautam Kumar</span> | 
+            🔒 For Educational & Legal Use Only | 
+            ⚡ Version 3.0
+        </div>
+    </div>
+</body>
+</html>
+EOF
+
+    sed -i "s/TARGET_PLACEHOLDER/$target/g" "$report_file"
+    sed -i "s/IP_PLACEHOLDER/${IP:-N/A}/g" "$report_file"
+    sed -i "s/SCAN_TYPE_PLACEHOLDER/$scan_type/g" "$report_file"
+    sed -i "s/DATE_PLACEHOLDER/$(date '+%Y-%m-%d %H:%M:%S')/g" "$report_file"
+    sed -i "s/REPORT_ID_PLACEHOLDER/$(date '+%Y%m%d_%H%M%S')/g" "$report_file"
+    
+    if [ -f "$result_file" ]; then
+        sed -i "s|SCAN_RESULTS_PLACEHOLDER|$(cat "$result_file" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g')|g" "$report_file"
+    fi
+    
+    echo -e "${G}[✓] HTML Report generated: $report_file${NC}"
+    log_message "HTML Report generated: $report_file"
+    cp "$report_file" "$SCRIPT_DIR/index.html"
+    echo -e "${G}[✓] index.html updated in main directory${NC}"
+}
+
 set_target() {
     echo -e "${Y}═══════════════════════════════════════════${NC}"
     echo -e "${B}🎯 CHANGE TARGET${NC}"
     echo -e "${Y}═══════════════════════════════════════════${NC}"
     echo -e "${W}Current Target: ${G}$CURRENT_TARGET${NC}"
+    if [ ! -z "$CURRENT_TARGET" ]; then
+        IP=$(dig +short $CURRENT_TARGET 2>/dev/null | head -1)
+        echo -e "${W}Current IP: ${G}${IP:-N/A}${NC}"
+    fi
+    echo ""
+    echo -e "${Y}📌 Examples:${NC}"
+    echo -e "${W}  - Domain: ${G}google.com${NC}"
+    echo -e "${W}  - IP: ${G}192.168.1.1${NC}"
+    echo -e "${W}  - Range: ${G}192.168.1.0/24${NC}"
     echo ""
     read -p "$(echo -e ${G}"Enter new target: "${NC})" new_target
     
@@ -82,7 +291,9 @@ set_target() {
     fi
     
     CURRENT_TARGET="$new_target"
-    echo -e "${G}[✓] Target changed to: ${W}$CURRENT_TARGET${NC}"
+    echo -e "${G}═══════════════════════════════════════════${NC}"
+    echo -e "${G}[✓] Target changed successfully!${NC}"
+    echo -e "${G}[✓] New Target: ${W}$CURRENT_TARGET${NC}"
     log_message "Target changed to: $CURRENT_TARGET"
     
     IP=$(dig +short $CURRENT_TARGET 2>/dev/null | head -1)
@@ -95,6 +306,7 @@ set_target() {
     else
         echo -e "${R}[✗] Host is ${W}DOWN 🔴${NC}"
     fi
+    echo -e "${G}═══════════════════════════════════════════${NC}"
     sleep 2
 }
 
@@ -115,6 +327,8 @@ run_scan() {
         echo -e "${G}[✓] Scan complete!${NC}"
         echo -e "${G}[✓] Results saved: $scan_file${NC}"
         log_message "$scan_name completed on $target"
+        
+        generate_html_report "$target" "$scan_name" "$scan_file"
         
         echo ""
         echo -e "${Y}===== OPEN PORTS =====${NC}"
@@ -163,6 +377,8 @@ vuln_scan() {
         echo -e "${G}[✓] Results saved: $scan_file${NC}"
         log_message "Vulnerability scan completed on $target"
         
+        generate_html_report "$target" "vulnerability_scan" "$scan_file"
+        
         echo ""
         echo -e "${Y}===== CRITICAL VULNERABILITIES =====${NC}"
         grep -E "VULNERABLE|CVE-|HIGH|CRITICAL" "$scan_file" | head -10 || echo "No critical vulnerabilities found"
@@ -209,179 +425,11 @@ firewall_detection() {
     echo -e "${G}[✓] Results saved: $scan_file${NC}"
     log_message "Firewall detection completed on $target"
     
+    generate_html_report "$target" "firewall_detection" "$scan_file"
+    
     echo ""
     echo -e "${Y}===== FIREWALL ANALYSIS =====${NC}"
     grep -E "filtered|unfiltered" "$scan_file" | head -5 || echo "No firewall detected"
-}
-
-quick_scan() {
-    target=$1
-    echo -e "${C}[+] QUICK SCAN (Top 20 Ports)${NC}"
-    echo -e "${Y}[*] Scanning top 20 ports with service detection...${NC}"
-    run_scan "$target" "quick_scan" "nmap -sV --top-ports 20 $target"
-}
-
-aggressive_scan() {
-    target=$1
-    echo -e "${C}[+] AGGRESSIVE SCAN${NC}"
-    echo -e "${Y}[*] Running aggressive scan...${NC}"
-    run_scan "$target" "aggressive_scan" "nmap -A --top-ports 20 $target"
-}
-
-udp_scan() {
-    target=$1
-    echo -e "${C}[+] UDP SCAN${NC}"
-    echo -e "${Y}[*] Scanning common UDP ports...${NC}"
-    run_scan "$target" "udp_scan" "nmap -sU -p 53,67,68,69,123,135,137,138,139,161,162,445,514,520,631,1434 $target"
-}
-
-traceroute_scan() {
-    target=$1
-    echo -e "${C}[+] TRACEROUTE${NC}"
-    echo -e "${Y}[*] Tracing network path...${NC}"
-    run_scan "$target" "traceroute" "nmap --traceroute $target"
-}
-
-ssl_check() {
-    target=$1
-    echo -e "${C}[+] SSL/TLS SECURITY CHECK${NC}"
-    echo -e "${Y}[*] Checking SSL/TLS security...${NC}"
-    run_scan "$target" "ssl_check" "nmap --script ssl* -p 443,465,587,993,995 $target"
-}
-
-subdomain_scan() {
-    target=$1
-    echo -e "${C}[+] SUBDOMAIN DISCOVERY${NC}"
-    echo -e "${Y}[*] Finding subdomains for $target...${NC}"
-    
-    local scan_file="$RESULTS_DIR/subdomains_${target}_${TIMESTAMP}.txt"
-    
-    {
-        echo "=========================================="
-        echo "   GAUTAM NMAP PRO - SUBDOMAIN DISCOVERY"
-        echo "=========================================="
-        echo "Target: $target"
-        echo "Date: $(date)"
-        echo "=========================================="
-        echo ""
-        echo "[*] DNS Brute Force:"
-        nmap --script dns-brute $target 2>&1
-        echo ""
-        echo "[*] Common Subdomains:"
-        for sub in www mail ftp admin blog shop api dev test; do
-            ip=$(dig +short $sub.$target 2>/dev/null | head -1)
-            if [ ! -z "$ip" ]; then
-                echo "$sub.$target -> $ip"
-            fi
-        done
-    } > "$scan_file"
-    
-    echo -e "${G}[✓] Subdomain discovery complete!${NC}"
-    echo -e "${G}[✓] Results saved: $scan_file${NC}"
-}
-
-ssl_analyze() {
-    target=$1
-    echo -e "${C}[+] SSL/TLS CERTIFICATE ANALYSIS${NC}"
-    echo -e "${Y}[*] Analyzing SSL certificate...${NC}"
-    
-    local scan_file="$RESULTS_DIR/ssl_analysis_${target}_${TIMESTAMP}.txt"
-    
-    {
-        echo "=========================================="
-        echo "   GAUTAM NMAP PRO - SSL ANALYSIS"
-        echo "=========================================="
-        echo "Target: $target"
-        echo "Date: $(date)"
-        echo "=========================================="
-        echo ""
-        echo "[*] SSL Certificate Details:"
-        nmap --script ssl-cert -p 443 $target 2>&1
-        echo ""
-        echo "[*] SSL Security Check:"
-        nmap --script ssl-enum-ciphers -p 443 $target 2>&1
-    } > "$scan_file"
-    
-    echo -e "${G}[✓] SSL analysis complete!${NC}"
-    echo -e "${G}[✓] Results saved: $scan_file${NC}"
-}
-
-network_range() {
-    target=$1
-    echo -e "${C}[+] NETWORK RANGE SCAN${NC}"
-    echo -e "${Y}[*] Scanning network range: $target${NC}"
-    
-    local scan_file="$RESULTS_DIR/network_range_${target}_${TIMESTAMP}.txt"
-    
-    {
-        echo "=========================================="
-        echo "   GAUTAM NMAP PRO - NETWORK RANGE SCAN"
-        echo "=========================================="
-        echo "Target: $target"
-        echo "Date: $(date)"
-        echo "=========================================="
-        echo ""
-        echo "[*] Active Hosts in Range:"
-        nmap -sn $target 2>&1
-        echo ""
-        echo "[*] Port Scan on Active Hosts:"
-        nmap -sV --top-ports 10 $target 2>&1
-    } > "$scan_file"
-    
-    echo -e "${G}[✓] Network range scan complete!${NC}"
-    echo -e "${G}[✓] Results saved: $scan_file${NC}"
-}
-
-brute_force() {
-    target=$1
-    echo -e "${C}[+] BRUTE FORCE CHECK (Safe)${NC}"
-    echo -e "${Y}[*] Checking for weak credentials...${NC}"
-    
-    local scan_file="$RESULTS_DIR/brute_force_${target}_${TIMESTAMP}.txt"
-    
-    {
-        echo "=========================================="
-        echo "   GAUTAM NMAP PRO - BRUTE FORCE CHECK"
-        echo "=========================================="
-        echo "Target: $target"
-        echo "Date: $(date)"
-        echo "=========================================="
-        echo ""
-        echo "[*] SSH Brute Force Check:"
-        nmap --script ssh-brute -p 22 $target 2>&1
-        echo ""
-        echo "[*] FTP Brute Force Check:"
-        nmap --script ftp-brute -p 21 $target 2>&1
-        echo ""
-        echo "[*] HTTP Basic Auth Check:"
-        nmap --script http-brute -p 80,443 $target 2>&1
-    } > "$scan_file"
-    
-    echo -e "${G}[✓] Brute force check complete!${NC}"
-    echo -e "${G}[✓] Results saved: $scan_file${NC}"
-}
-
-banner_grab() {
-    target=$1
-    echo -e "${C}[+] BANNER GRABBING${NC}"
-    echo -e "${Y}[*] Grabbing service banners...${NC}"
-    
-    local scan_file="$RESULTS_DIR/banner_${target}_${TIMESTAMP}.txt"
-    
-    {
-        echo "=========================================="
-        echo "   GAUTAM NMAP PRO - BANNER GRABBING"
-        echo "=========================================="
-        echo "Target: $target"
-        echo "Date: $(date)"
-        echo "=========================================="
-        echo ""
-        echo "[*] Banner Information:"
-        nmap -sV --version-intensity 5 --top-ports 30 $target 2>&1
-    } > "$scan_file"
-    
-    echo -e "${G}[✓] Banner grabbing complete!${NC}"
-    echo -e "${G}[✓] Results saved: $scan_file${NC}"
 }
 
 all_in_one() {
@@ -439,6 +487,8 @@ all_in_one() {
     echo -e "${G}[✓] All-in-one scan complete!${NC}"
     echo -e "${G}[✓] Results saved: $combined_file${NC}"
     log_message "All-in-one scan completed on $CURRENT_TARGET"
+    
+    generate_html_report "$CURRENT_TARGET" "all_in_one" "$combined_file"
 }
 
 view_results() {
@@ -452,6 +502,15 @@ view_results() {
         ls -lh "$RESULTS_DIR/" | grep -v "total" | tail -20
     else
         echo -e "${Y}[!] No scan results found!${NC}"
+    fi
+    
+    echo ""
+    echo -e "${W}📄 HTML Reports:${NC}"
+    echo ""
+    if [ -d "$REPORTS_DIR" ] && [ ! -z "$(ls -A $REPORTS_DIR 2>/dev/null)" ]; then
+        ls -lh "$REPORTS_DIR/" | grep -v "total" | tail -10
+    else
+        echo -e "${Y}[!] No HTML reports found!${NC}"
     fi
     
     echo ""
@@ -472,6 +531,9 @@ view_results() {
     if [ -f "$RESULTS_DIR/$file" ]; then
         echo ""
         cat "$RESULTS_DIR/$file" | less
+    elif [ -f "$REPORTS_DIR/$file" ]; then
+        echo ""
+        cat "$REPORTS_DIR/$file" | less
     else
         echo -e "${R}[!] File not found!${NC}"
         sleep 1
@@ -551,24 +613,21 @@ main_menu() {
         echo -e "${B}12.${NC} ${W}Target Info${NC}"
         echo -e "${B}13.${NC} ${R}Delete Results${NC}"
         echo -e "${B}14.${NC} ${G}Exit${NC}"
-        echo -e "${B}15.${NC} ${P}Vulnerability Scan${NC}"
+        echo -e "${B}15.${NC} ${P}Vulnerability Scan (NSE Vuln)${NC}"
         echo -e "${B}16.${NC} ${C}Firewall Detection${NC}"
-        echo -e "${B}17.${NC} ${W}Quick Scan${NC}"
+        echo -e "${B}17.${NC} ${W}Quick Scan (Top 20 Ports)${NC}"
         echo -e "${B}18.${NC} ${R}Aggressive Scan${NC}"
         echo -e "${B}19.${NC} ${C}UDP Scan${NC}"
         echo -e "${B}20.${NC} ${Y}Traceroute${NC}"
-        echo -e "${B}21.${NC} ${P}SSL/TLS Check${NC}"
-        echo -e "${B}22.${NC} ${C}Subdomain Discovery${NC}"
-        echo -e "${B}23.${NC} ${P}SSL Certificate Analysis${NC}"
-        echo -e "${B}24.${NC} ${Y}Network Range Scan${NC}"
-        echo -e "${B}25.${NC} ${R}Brute Force Check${NC}"
-        echo -e "${B}26.${NC} ${W}Banner Grabbing${NC}"
+        echo -e "${B}21.${NC} ${P}SSL/TLS Security Check${NC}"
         echo -e "${Y}═══════════════════════════════════════════${NC}"
         echo ""
-        read -p "$(echo -e ${G}"Select Option [1-26]: "${NC})" choice
+        read -p "$(echo -e ${G}"Select Option [1-21]: "${NC})" choice
         
         case $choice in
-            1) set_target ;;
+            1)
+                set_target
+                ;;
             2|3|4|5|6|7|8)
                 if [ -z "$CURRENT_TARGET" ]; then
                     echo -e "${R}[!] Please set target first! (Option 1)${NC}"
@@ -604,12 +663,19 @@ main_menu() {
                 all_in_one
                 read -p "Press Enter to continue..."
                 ;;
-            11) view_results ;;
-            12) show_target_info ;;
-            13) delete_results ;;
+            11)
+                view_results
+                ;;
+            12)
+                show_target_info
+                ;;
+            13)
+                delete_results
+                ;;
             14)
                 echo -e "${G}[✓] Thanks for using GAUTAM NMAP PRO!${NC}"
                 echo -e "${Y}Admin: Gautam Kumar${NC}"
+                echo -e "${Y}Log saved: $LOG_FILE${NC}"
                 log_message "User exited"
                 exit 0
                 ;;
@@ -632,112 +698,4 @@ main_menu() {
                 read -p "Press Enter to continue..."
                 ;;
             17)
-                if [ -z "$CURRENT_TARGET" ]; then
-                    echo -e "${R}[!] Please set target first! (Option 1)${NC}"
-                    sleep 1
-                    continue
-                fi
-                quick_scan "$CURRENT_TARGET"
-                read -p "Press Enter to continue..."
-                ;;
-            18)
-                if [ -z "$CURRENT_TARGET" ]; then
-                    echo -e "${R}[!] Please set target first! (Option 1)${NC}"
-                    sleep 1
-                    continue
-                fi
-                aggressive_scan "$CURRENT_TARGET"
-                read -p "Press Enter to continue..."
-                ;;
-            19)
-                if [ -z "$CURRENT_TARGET" ]; then
-                    echo -e "${R}[!] Please set target first! (Option 1)${NC}"
-                    sleep 1
-                    continue
-                fi
-                udp_scan "$CURRENT_TARGET"
-                read -p "Press Enter to continue..."
-                ;;
-            20)
-                if [ -z "$CURRENT_TARGET" ]; then
-                    echo -e "${R}[!] Please set target first! (Option 1)${NC}"
-                    sleep 1
-                    continue
-                fi
-                traceroute_scan "$CURRENT_TARGET"
-                read -p "Press Enter to continue..."
-                ;;
-            21)
-                if [ -z "$CURRENT_TARGET" ]; then
-                    echo -e "${R}[!] Please set target first! (Option 1)${NC}"
-                    sleep 1
-                    continue
-                fi
-                ssl_check "$CURRENT_TARGET"
-                read -p "Press Enter to continue..."
-                ;;
-            22)
-                if [ -z "$CURRENT_TARGET" ]; then
-                    echo -e "${R}[!] Please set target first! (Option 1)${NC}"
-                    sleep 1
-                    continue
-                fi
-                subdomain_scan "$CURRENT_TARGET"
-                read -p "Press Enter to continue..."
-                ;;
-            23)
-                if [ -z "$CURRENT_TARGET" ]; then
-                    echo -e "${R}[!] Please set target first! (Option 1)${NC}"
-                    sleep 1
-                    continue
-                fi
-                ssl_analyze "$CURRENT_TARGET"
-                read -p "Press Enter to continue..."
-                ;;
-            24)
-                if [ -z "$CURRENT_TARGET" ]; then
-                    echo -e "${R}[!] Please set target first! (Option 1)${NC}"
-                    sleep 1
-                    continue
-                fi
-                network_range "$CURRENT_TARGET"
-                read -p "Press Enter to continue..."
-                ;;
-            25)
-                if [ -z "$CURRENT_TARGET" ]; then
-                    echo -e "${R}[!] Please set target first! (Option 1)${NC}"
-                    sleep 1
-                    continue
-                fi
-                brute_force "$CURRENT_TARGET"
-                read -p "Press Enter to continue..."
-                ;;
-            26)
-                if [ -z "$CURRENT_TARGET" ]; then
-                    echo -e "${R}[!] Please set target first! (Option 1)${NC}"
-                    sleep 1
-                    continue
-                fi
-                banner_grab "$CURRENT_TARGET"
-                read -p "Press Enter to continue..."
-                ;;
-            *)
-                echo -e "${R}[!] Invalid option!${NC}"
-                sleep 1
-                ;;
-        esac
-    done
-}
-
-# =================== START ===================
-clear
-echo -e "${G}═══════════════════════════════════════════${NC}"
-echo -e "${C}  GAUTAM NMAP PRO - Initializing...${NC}"
-echo -e "${G}═══════════════════════════════════════════${NC}"
-log_message "=== GAUTAM NMAP PRO STARTED ==="
-check_nmap
-echo -e "${G}[✓] All systems ready!${NC}"
-echo -e "${G}[✓] Project Directory: $SCRIPT_DIR${NC}"
-echo -e "${G}[✓] Logs: $LOG_FILE${NC}"
-sleep 1
-main_menu
+               

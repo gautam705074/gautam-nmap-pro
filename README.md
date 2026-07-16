@@ -288,15 +288,14 @@ This project is for **EDUCATIONAL PURPOSES ONLY**.
 ---
 
 ## 📸 Project Run Output
+<img width="1718" height="804" alt="NNNN" src="https://github.com/user-attachments/assets/959a078b-42c5-4824-9274-c2f84ad9b831" />
 
 ### Terminal Output
 
-![Terminal Output](images/terminal-output.png)
+<img width="1718" height="804" alt="NNNN" src="https://github.com/user-attachments/assets/cdd993bb-1f26-4fd7-81a0-5c64aed0457f" />
 
-*Figure: GAUTAM NMAP PRO running in Kali Linux terminal*
+
 
 ### HTML Report Output
 
-![HTML Report](images/html-report.png)
 
-*Figure: Auto-generated HTML report with Bootstrap dashboard*
